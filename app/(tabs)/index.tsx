@@ -4,6 +4,7 @@ import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useColorScheme } from "nativewind";
 import Altimeter from "../../components/Altimeter";
 import Gps from "../../components/Gps";
+import Compass from "../../components/Compass";
 
 export default function HomeScreen() {
   const { colorScheme, toggleColorScheme } = useColorScheme();
@@ -22,8 +23,12 @@ export default function HomeScreen() {
           </Text>
         </TouchableOpacity>
 
+				{/* instruments */}
         <Altimeter />
         <Gps />
+        <Compass />
+
+
       </View>
     </ScrollView>
   );
