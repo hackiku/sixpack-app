@@ -1,70 +1,46 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useColorScheme } from 'nativewind';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
-}
+	const { colorScheme, toggleColorScheme } = useColorScheme();
+	const [altitude, setAltitude] = useState(1000); // Mock altitude
+	const [coordinates, setCoordinates] = useState({ lat: 40.7128, lon: -74.0060 }); // Mock coordinates
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+	return (
+		<View className={`flex-1 p-4 ${colorScheme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
+			{/* Dark mode toggle */}
+			<TouchableOpacity
+				onPress={toggleColorScheme}
+				className="mb-4 p-2 bg-blue-500 rounded-lg self-start"
+			>
+				<Text className="text-white font-bold">
+					Toggle {colorScheme === 'dark' ? 'Light' : 'Dark'} Mode
+				</Text>
+			</TouchableOpacity>
+
+			{/* Altitude Card */}
+			<View className={`mb-4 p-4 border-4 ${colorScheme === 'dark' ? 'border-white bg-gray-800' : 'border-black bg-white'}`}>
+				<Text className={`text-2xl font-bold ${colorScheme === 'dark' ? 'text-white' : 'text-black'}`}>
+					Altitude
+				</Text>
+				<Text className={`text-4xl font-mono ${colorScheme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>
+					{altitude} ft
+				</Text>
+			</View>
+
+			{/* GPS Coordinates Card */}
+			<View className={`p-4 border-4 ${colorScheme === 'dark' ? 'border-white bg-gray-800' : 'border-black bg-white'}`}>
+				<Text className={`text-2xl font-bold ${colorScheme === 'dark' ? 'text-white' : 'text-black'}`}>
+					GPS Coordinates
+				</Text>
+				<Text className={`text-xl font-mono ${colorScheme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>
+					Lat: {coordinates.lat.toFixed(4)}
+				</Text>
+				<Text className={`text-xl font-mono ${colorScheme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>
+					Lon: {coordinates.lon.toFixed(4)}
+				</Text>
+			</View>
+		</View>
+	);
+}
