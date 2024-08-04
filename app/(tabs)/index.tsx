@@ -5,6 +5,7 @@ import { useColorScheme } from "nativewind";
 import Altimeter from "../../components/Altimeter";
 import Gps from "../../components/Gps";
 import Compass from "../../components/Compass";
+import ThreeModel from "../../components/ThreeModel";
 
 export default function HomeScreen() {
   const { colorScheme, toggleColorScheme } = useColorScheme();
@@ -27,6 +28,10 @@ export default function HomeScreen() {
         <Altimeter />
         <Gps />
         <Compass />
+
+				<View style={{ height: 300, marginTop: 20 }}>
+					<ThreeModel />
+				</View>
 
 
       </View>
