@@ -2,10 +2,12 @@
 import React from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useColorScheme } from "nativewind";
-import Altimeter from "../../components/Altimeter";
-import Gps from "../../components/Gps";
-import Compass from "../../components/Compass";
-import ThreeModel from "../../components/ThreeModel";
+import Altimeter from "../../components/instruments/Altimeter";
+// import Altimeter from "@/components/instruments/Altimeter";
+import Gps from "../../components/instruments/Gps";
+import Compass from "../../components/instruments/Compass";
+// import ThreeModel from "../../components/ThreeModel";
+import ThreeDScene from "../../components/3d/ThreeDScene";
 
 export default function HomeScreen() {
   const { colorScheme, toggleColorScheme } = useColorScheme();
@@ -30,7 +32,11 @@ export default function HomeScreen() {
         <Compass />
 
 				<View style={{ height: 300, marginTop: 20 }}>
-					<ThreeModel />
+					{/* <ThreeModel /> */}
+					<ThreeDScene />
+					<Text className="text-red-500">
+						threemodel
+					</Text>
 				</View>
 
 
