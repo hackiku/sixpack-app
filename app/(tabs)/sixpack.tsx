@@ -1,11 +1,24 @@
+// app/(tabs)/sixpack.tsx
 import React from 'react';
 import { View } from 'react-native';
-import SixPackLayout from '../../components/layout/SixPackGrid';
+import SixPackGrid from '@/components/layout/SixPackGrid';
+import ToggleMode from '@/components/ui/ToggleMode';
+import Controls from '@/components/ui/Controls';
+import { useColorScheme } from 'nativewind';
 
 export default function SixPackScreen() {
+	const { colorScheme } = useColorScheme();
+
 	return (
-		<View style={{ flex: 1 }}>
-			<SixPackLayout />
+		<View className={`flex-1 ${colorScheme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
+			
+			<SixPackGrid />
+
+			<View className="p-4 mt-12">
+				{/* <ToggleMode /> */}
+				<Controls />
+			</View>
+
 		</View>
 	);
 }

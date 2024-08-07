@@ -1,75 +1,19 @@
 // components/layout/SixPackGrid.tsx
+import React from 'react';
+import { ScrollView, View } from 'react-native';
+import InstrumentCard from '@/components/instruments/InstrumentCard';
 
-import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import Altimeter from '@/components/instruments/Altimeter';
-import Gps from '@/components/instruments/Gps';
-import Compass from '@/components/instruments/Compass';
-// import ThreeDScene from './ThreeDScene';
-
-// const INSTRUMENTS = [Altimeter, Gps, Compass, ThreeDScene, View, View]; // Placeholder Views for remaining instruments
-const INSTRUMENTS = [Altimeter, Gps, Compass, View, View]; // Placeholder Views for remaining instruments
-
-export default function SixPackLayout() {
-	const [selectedInstrument, setSelectedInstrument] = useState(null);
-
-	const renderInstrument = (Instrument, index) => (
-		<TouchableOpacity
-			key={index}
-			style={styles.instrumentContainer}
-			onPress={() => setSelectedInstrument(index)}
-		>
-			<Instrument />
-		</TouchableOpacity>
-	);
-
-	if (selectedInstrument !== null) {
-		const SelectedInstrument = INSTRUMENTS[selectedInstrument];
-		return (
-			<View style={styles.fullScreenContainer}>
-				<SelectedInstrument />
-				<TouchableOpacity
-					style={styles.backButton}
-					onPress={() => setSelectedInstrument(null)}
-				>
-					<Text>Back to Six Pack</Text>
-				</TouchableOpacity>
-			</View>
-		);
-	}
-
+export default function SixPackGrid() {
 	return (
-		<View style={styles.container}>
-			{INSTRUMENTS.map(renderInstrument)}
-		</View>
+		<ScrollView className="flex-1">
+			<View className="p-2 space-y-4">
+				<InstrumentCard title="Altitude" primaryData="12,500" secondaryData="ft" color="bg-[#F65A4D]" />
+				<InstrumentCard title="Airspeed" primaryData="120" secondaryData="kts" color="bg-[#FFDB58]" />
+				<InstrumentCard title="Vertical Speed" primaryData="+500" secondaryData="fpm" color="bg-[#A6FAFF]" />
+				<InstrumentCard title="Heading" primaryData="218" secondaryData="SW" color="bg-[#AE7AFF]" />
+				<InstrumentCard title="Turn Coordinator" primaryData="2" secondaryData="min" color="bg-[#FFA07A]" />
+				<InstrumentCard title="Attitude" primaryData="5°" secondaryData="Pitch Up" color="bg-[#98FB98]" />
+			</View>
+		</ScrollView>
 	);
 }
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		flexDirection: 'row',
-		flexWrap: 'wrap',
-		justifyContent: 'space-around',
-		alignItems: 'center',
-		padding: 10,
-	},
-	instrumentContainer: {
-		width: '48%',
-		aspectRatio: 1,
-		margin: '1%',
-		borderWidth: 1,
-		borderColor: 'black',
-	},
-	fullScreenContainer: {
-		flex: 1,
-	},
-	backButton: {
-		position: 'absolute',
-		top: 20,
-		left: 20,
-		padding: 10,
-		backgroundColor: 'rgba(255,255,255,0.7)',
-		borderRadius: 5,
-	},
-});
