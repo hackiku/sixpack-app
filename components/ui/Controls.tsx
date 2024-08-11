@@ -4,9 +4,13 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity, Animated } from 'react-native';
 import { useColorScheme } from 'nativewind';
 
-const Controls = () => {
+// Define the possible grid layouts
+const gridLayouts = ['3x2', '6x1', '2x3', '1x6'];
+
+const Controls = ({ onLayoutChange }) => {
 	const { colorScheme, toggleColorScheme } = useColorScheme();
 	const [show3D, setShow3D] = useState(false);
+	const [currentLayoutIndex, setCurrentLayoutIndex] = useState(0);
 
 	const rotateAnim = new Animated.Value(0);
 
@@ -27,8 +31,12 @@ const Controls = () => {
 			},
 		},
 		{
-			emoji: '🔲',
-			onPress: () => console.log("Placeholder pressed"),
+			emoji: '📊',
+			onPress: () => {
+				const nextIndex = (currentLayoutIndex + 1) % gridLayouts.length;
+				setCurrentLayoutIndex(nextIndex);
+				onLayoutChange(gridLayouts[nextIndex]);
+			},
 		},
 	];
 
@@ -44,11 +52,11 @@ const Controls = () => {
 					key={index}
 					onPress={button.onPress}
 					className={`flex justify-center items-center rounded-full 
-                      border-4 border-black transition-all duration-300 
-                      w-16 h-16 bg-white active:bg-black active:text-white
-                      shadow-[4px_4px_0px_0px_#000000] 
-                      active:shadow-[2px_2px_0px_0px_#000000] 
-                      active:translate-x-[2px] active:translate-y-[2px]`}
+                    border-4 border-black transition-all duration-300 
+                    w-16 h-16 bg-white active:bg-black active:text-white
+                    shadow-[4px_4px_0px_0px_#000000] 
+                    active:shadow-[2px_2px_0px_0px_#000000] 
+                    active:translate-x-[2px] active:translate-y-[2px]`}
 				>
 					<Animated.Text
 						style={index === 1 ? { transform: [{ rotate: spin }] } : {}}

@@ -1,0 +1,6 @@
+module Pods_sixpack {
+  umbrella header "Pods-sixpack-umbrella.h"
+
+  export *
+  module * { export * }
+}
