@@ -1,4 +1,4 @@
-// @/components/ui/Controls.tsx
+// @/components/ui/ControlsOLD.tsx
 
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Animated } from 'react-native';
@@ -51,11 +51,11 @@ const Controls = ({ onLayoutChange }) => {
         <TouchableOpacity
           key={index}
           onPress={button.onPress}
-          className={`flex justify-center items-center rounded-full 
-                    border-4 border-black transition-all duration-300 
+          className={`flex justify-center items-center rounded-full
+                    border-4 border-black transition-all duration-300
                     w-16 h-16 bg-white active:bg-black active:text-white
-                    shadow-[4px_4px_0px_0px_#000000] 
-                    active:shadow-[2px_2px_0px_0px_#000000] 
+                    shadow-[4px_4px_0px_0px_#000000]
+                    active:shadow-[2px_2px_0px_0px_#000000]
                     active:translate-x-[2px] active:translate-y-[2px]`}
         >
           <Animated.Text
