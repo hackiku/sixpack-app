@@ -15,19 +15,22 @@ export default function InstrumentCard({ title, primaryData, secondaryData, colo
 	const { colorScheme } = useColorScheme();
 	const isDark = colorScheme === 'dark';
 
+	// Determine if the asset should be visible based on the layout
+	const isThreeColumns = false; // Update this based on your layout logic or props
+
 	return (
-		<View className={`flex-1 p-2 ${isDark ? 'bg-gray-600' : 'bg-white'}`}>
-			<View className={`flex-1 border-4 border-black rounded-lg p-4 ${color}`}>
-				<Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-black'}`}>{title}</Text>
-				<View className="flex-1 flex-row items-center justify-between">
-					<View className="flex-1 justify-center items-center">
-						<Text className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>{primaryData}</Text>
-						{secondaryData && (
-							<Text className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{secondaryData}</Text>
-						)}
-					</View>
-					<Text className={`text-xl ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Asset</Text>
+		<View className={`flex-1 border-4 border-black rounded-lg ${color}`}>
+			<View className="flex-1 flex-col justify-between space-y-2 p-2">
+				<Text className={`text-lg font-bold ${isDark ? 'text-black' : 'text-black'}`}>{title}</Text>
+				<View className="flex-1 flex-row gap-2 justify-start items-start">
+					<Text className={`text-4xl font-bold ${isDark ? 'text-black' : 'text-black'}`}>{primaryData}</Text>
+					{secondaryData && (
+						<Text className={`text-lg ${isDark ? 'text-black' : 'text-gray-600'}`}>{secondaryData}</Text>
+					)}
 				</View>
+				{!isThreeColumns && (
+					<Text className={`text-xl ${isDark ? 'text-gray-700' : 'text-gray-600'}`}>Asset</Text>
+				)}
 			</View>
 		</View>
 	);

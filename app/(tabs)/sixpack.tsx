@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import SixPackGrid from '@/components/layout/SixPackGrid';
-import ToggleMode from '@/components/ui/ToggleMode';
 import Controls from '@/components/ui/Controls';
 import { useColorScheme } from 'nativewind';
 
