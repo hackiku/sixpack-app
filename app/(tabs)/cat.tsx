@@ -17,21 +17,44 @@ const CatScreen: React.FC = () => {
 		accel: 'N/A',
 		gForce: 'N/A',
 	});
+	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		const bleManager = new BLEManager();
-		bleManager.startScanning();
+		let bleManager: BLEManager | null = null;
+		let updateInterval: NodeJS.Timeout | null = null;
 
-		const updateInterval = setInterval(() => {
-			const data = bleManager.getLatestData();
-			setSensorData(data);
-		}, 100);
+		const initBLE = async () => {
+			try {
+				bleManager = new BLEManager();
+				await bleManager.startScanning();
+
+				updateInterval = setInterval(() => {
+					const data = bleManager?.getLatestData();
+					if (data) {
+						setSensorData(data);
+					}
+				}, 100);
+			} catch (err) {
+				console.error('BLE Error:', err);
+				setError('Failed to initialize BLE. Please check your device settings.');
+			}
+		};
+
+		initBLE();
 
 		return () => {
-			clearInterval(updateInterval);
-			bleManager.stopScanning();
+			if (updateInterval) clearInterval(updateInterval);
+			if (bleManager) bleManager.stopScanning();
 		};
 	}, []);
+
+	if (error) {
+		return (
+			<View className="flex-1 justify-center items-center">
+				<Text className="text-red-500">{error}</Text>
+			</View>
+		);
+	}
 
 	return (
 		<View className={`flex-1 ${colorScheme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
