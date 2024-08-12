@@ -1,4 +1,5 @@
 // components/layout/SixPackGrid.tsx
+
 import React from 'react';
 import { View, ScrollView } from 'react-native';
 import InstrumentCard from '@/components/instruments/InstrumentCard';
@@ -29,7 +30,7 @@ export default function SixPackGrid({ layout }) {
 	const getItemStyle = () => {
 		switch (layout) {
 			case '3x2':
-				return 'w-1/2 h-1/3'; // 3 rows, 2 columns
+				return 'w-1/2 h-2/3'; // 3 rows, 2 columns
 			case '6x1':
 				return 'w-full h-1/6'; // 6 rows, 1 column
 			case '2x3':
@@ -40,7 +41,7 @@ export default function SixPackGrid({ layout }) {
 	};
 
 	return (
-		<ScrollView contentContainerStyle="flex-1 ">
+		<ScrollView contentContainerStyle="flex-1">
 			<View className={`flex ${getGridStyle()} w-full h-full p-4`}>
 				{instruments.map((instrument, index) => (
 					<View key={index} className={`p-1 ${getItemStyle()}`}>

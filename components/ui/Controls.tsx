@@ -45,7 +45,7 @@ const Controls = ({ onLayoutChange }) => {
 	});
 
 	return (
-		<View className="flex-row justify-center items-center gap-4">
+		<View className="flex-row justify-start items-start space-x-3 bg-rsed-500">
 			{buttons.map((button, index) => (
 				<TouchableOpacity
 					key={index}

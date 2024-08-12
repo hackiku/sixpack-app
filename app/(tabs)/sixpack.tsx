@@ -15,10 +15,12 @@ export default function SixPackScreen() {
 	};
 
 	return (
+		// <View className={`flex-1 ${colorScheme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
 		<View className={`flex-1 ${colorScheme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
+
 			<SixPackGrid layout={layout} />
 
-			<View className="p-4 mt-12">
+			<View className="absolute left-1/4 bottom-2 ">
 				<Controls
 					onLayoutChange={handleLayoutChange}
 					show3D={show3D}
