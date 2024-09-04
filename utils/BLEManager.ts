@@ -1,4 +1,5 @@
 // utils/BLEManager.ts
+
 import { Platform } from 'react-native';
 
 let BleManager: any;

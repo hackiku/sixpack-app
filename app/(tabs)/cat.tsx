@@ -1,10 +1,11 @@
 // app/(tabs)/cat.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import BLEManager from '@/utils/BLEManager';
 import CatInstrumentCard from '@/components/instruments/CatInstrumentCard';
 import Controls from '@/components/ui/Controls';
+import { Device } from 'react-native-ble-plx';
 
 const CatScreen: React.FC = () => {
 	const { colorScheme } = useColorScheme();
@@ -17,44 +18,76 @@ const CatScreen: React.FC = () => {
 	});
 	const [isConnected, setIsConnected] = useState(false);
 	const [bleManager] = useState(() => new BLEManager());
+	const [availableDevices, setAvailableDevices] = useState<Device[]>([]);
+	const [isScanning, setIsScanning] = useState(false);
 
 	useEffect(() => {
-		const initBLE = async () => {
-			if (Platform.OS === 'ios' || Platform.OS === 'android') {
-				try {
-					await bleManager.startScanning();
-					setIsConnected(true);
-				} catch (error) {
-					console.error('Failed to connect:', error);
-					setIsConnected(false);
-				}
-			} else {
-				console.log('BLE not supported on this platform, using mock data');
-			}
-		};
-
-		initBLE();
-
 		const updateInterval = setInterval(() => {
-			const data = bleManager.getLatestData();
-			setSensorData(data);
-			setIsConnected(bleManager.isDeviceConnected());
+			if (isConnected) {
+				const data = bleManager.getLatestData();
+				setSensorData(data);
+			}
 		}, 100);
 
 		return () => {
 			clearInterval(updateInterval);
-			bleManager.stopScanning();
+			bleManager.disconnect();
 		};
-	}, []);
+	}, [isConnected]);
+
+	const scanForDevices = async () => {
+		setIsScanning(true);
+		try {
+			const devices = await bleManager.scanForDevices();
+			setAvailableDevices(devices);
+		} catch (error) {
+			console.error('Failed to scan for devices:', error);
+		} finally {
+			setIsScanning(false);
+		}
+	};
+
+	const connectToDevice = async (device: Device) => {
+		try {
+			await bleManager.connectToDevice(device);
+			setIsConnected(true);
+		} catch (error) {
+			console.error('Failed to connect to device:', error);
+		}
+	};
 
 	return (
 		<View className={`flex-1 ${colorScheme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
 			<ScrollView contentContainerStyle={{ flex: 1, padding: 16 }}>
+				<TouchableOpacity
+					onPress={scanForDevices}
+					className="bg-blue-500 p-2 rounded mb-4"
+				>
+					<Text className="text-white text-center">
+						{isScanning ? 'Scanning...' : 'Scan for Devices'}
+					</Text>
+				</TouchableOpacity>
+
+				{availableDevices.length > 0 && (
+					<FlatList
+						data={availableDevices}
+						keyExtractor={(item) => item.id}
+						renderItem={({ item }) => (
+							<TouchableOpacity
+								onPress={() => connectToDevice(item)}
+								className="bg-gray-200 p-2 rounded mb-2"
+							>
+								<Text>{item.name || 'Unknown Device'}</Text>
+							</TouchableOpacity>
+						)}
+						className="mb-4"
+					/>
+				)}
+
 				<Text className={`text-2xl font-bold mb-4 ${colorScheme === 'dark' ? 'text-white' : 'text-black'}`}>
-					{Platform.OS === 'ios' || Platform.OS === 'android'
-						? (isConnected ? 'Connected to SixPack' : 'Not Connected')
-						: 'BLE Not Supported (Mock Data)'}
+					{isConnected ? 'Connected to SixPack' : 'Not Connected'}
 				</Text>
+
 				<View className="flex-row flex-wrap justify-between">
 					<CatInstrumentCard title="Roll" primaryData={sensorData.roll} secondaryData="°" color="bg-[#F65A4D]" />
 					<CatInstrumentCard title="Pitch" primaryData={sensorData.pitch} secondaryData="°" color="bg-[#FFDB58]" />
