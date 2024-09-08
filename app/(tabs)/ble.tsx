@@ -1,106 +1,129 @@
-// app/(tabs)/cat.tsx
+// app/(tabs)/ble.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, FlatList } from 'react-native';
-import { useColorScheme } from 'nativewind';
-import BLEManager from '@/utils/BLEManager';
-import CatInstrumentCard from '@/components/instruments/CatInstrumentCard';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import Controls from '@/components/ui/Controls';
-import { Device } from 'react-native-ble-plx';
 
-const CatScreen: React.FC = () => {
-	const { colorScheme } = useColorScheme();
-	const [sensorData, setSensorData] = useState({
-		roll: 'Not Connected',
-		pitch: 'Not Connected',
-		yaw: 'Not Connected',
-		accel: 'Not Connected',
-		gForce: 'Not Connected',
-	});
+// Mock BLE data
+const mockBLEData = {
+	roll: 15.32,
+	pitch: -5.67,
+	yaw: 178.9,
+	accel: 9.81,
+	gForce: 1.02,
+};
+
+const BLEScreen = () => {
+	const colorScheme = useColorScheme();
 	const [isConnected, setIsConnected] = useState(false);
-	const [bleManager] = useState(() => new BLEManager());
-	const [availableDevices, setAvailableDevices] = useState<Device[]>([]);
-	const [isScanning, setIsScanning] = useState(false);
+	const [bleData, setBLEData] = useState(mockBLEData);
 
 	useEffect(() => {
-		const updateInterval = setInterval(() => {
+		const interval = setInterval(() => {
 			if (isConnected) {
-				const data = bleManager.getLatestData();
-				setSensorData(data);
+				setBLEData({
+					roll: Number((Math.random() * 360 - 180).toFixed(2)),
+					pitch: Number((Math.random() * 180 - 90).toFixed(2)),
+					yaw: Number((Math.random() * 360).toFixed(2)),
+					accel: Number((Math.random() * 20).toFixed(2)),
+					gForce: Number((Math.random() * 5).toFixed(2)),
+				});
 			}
-		}, 100);
+		}, 1000);
 
-		return () => {
-			clearInterval(updateInterval);
-			bleManager.disconnect();
-		};
+		return () => clearInterval(interval);
 	}, [isConnected]);
 
-	const scanForDevices = async () => {
-		setIsScanning(true);
-		try {
-			const devices = await bleManager.scanForDevices();
-			setAvailableDevices(devices);
-		} catch (error) {
-			console.error('Failed to scan for devices:', error);
-		} finally {
-			setIsScanning(false);
-		}
+	const toggleConnection = () => {
+		setIsConnected(!isConnected);
 	};
 
-	const connectToDevice = async (device: Device) => {
-		try {
-			await bleManager.connectToDevice(device);
-			setIsConnected(true);
-		} catch (error) {
-			console.error('Failed to connect to device:', error);
-		}
-	};
+	const isDark = colorScheme === 'dark';
+
+	const styles = StyleSheet.create({
+		container: {
+			flex: 1,
+			padding: 16,
+			backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+		},
+		button: {
+			backgroundColor: '#4a90e2',
+			padding: 10,
+			borderRadius: 5,
+			marginBottom: 16,
+		},
+		buttonText: {
+			color: 'white',
+			textAlign: 'center',
+			fontSize: 16,
+		},
+		statusText: {
+			fontSize: 18,
+			marginBottom: 16,
+			color: isDark ? '#ffffff' : '#000000',
+		},
+		headerText: {
+			fontSize: 18,
+			fontWeight: 'bold',
+			marginTop: 16,
+			marginBottom: 8,
+			color: isDark ? '#ffffff' : '#000000',
+		},
+		dataText: {
+			fontSize: 16,
+			marginBottom: 4,
+			color: isDark ? '#e0e0e0' : '#333333',
+		},
+		rawDataText: {
+			fontSize: 14,
+			fontFamily: 'Courier',
+			color: isDark ? '#e0e0e0' : '#333333',
+		},
+		controlsContainer: {
+			position: 'absolute',
+			left: '25%',
+			bottom: 16,
+		},
+	});
 
 	return (
-		<View className={`flex-1 ${colorScheme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
-			<ScrollView contentContainerStyle={{ flex: 1, padding: 16 }}>
-				<TouchableOpacity
-					onPress={scanForDevices}
-					className="bg-blue-500 p-2 rounded mb-4"
-				>
-					<Text className="text-white text-center">
-						{isScanning ? 'Scanning...' : 'Scan for Devices'}
+		<View style={styles.container}>
+			<ScrollView>
+				<TouchableOpacity onPress={toggleConnection} style={styles.button}>
+					<Text style={styles.buttonText}>
+						{isConnected ? 'Disconnect' : 'Connect'}
 					</Text>
 				</TouchableOpacity>
 
-				{availableDevices.length > 0 && (
-					<FlatList
-						data={availableDevices}
-						keyExtractor={(item) => item.id}
-						renderItem={({ item }) => (
-							<TouchableOpacity
-								onPress={() => connectToDevice(item)}
-								className="bg-gray-200 p-2 rounded mb-2"
-							>
-								<Text>{item.name || 'Unknown Device'}</Text>
-							</TouchableOpacity>
-						)}
-						className="mb-4"
-					/>
-				)}
-
-				<Text className={`text-2xl font-bold mb-4 ${colorScheme === 'dark' ? 'text-white' : 'text-black'}`}>
-					{isConnected ? 'Connected to SixPack' : 'Not Connected'}
+				<Text style={styles.statusText}>
+					Status: {isConnected ? 'Connected' : 'Disconnected'}
 				</Text>
 
-				<View className="flex-row flex-wrap justify-between">
-					<CatInstrumentCard title="Roll" primaryData={sensorData.roll} secondaryData="°" color="bg-[#F65A4D]" />
-					<CatInstrumentCard title="Pitch" primaryData={sensorData.pitch} secondaryData="°" color="bg-[#FFDB58]" />
-					<CatInstrumentCard title="Yaw" primaryData={sensorData.yaw} secondaryData="°" color="bg-[#A6FAFF]" />
-					<CatInstrumentCard title="Accel" primaryData={sensorData.accel} secondaryData="m/s²" color="bg-[#AE7AFF]" />
-					<CatInstrumentCard title="G-Force" primaryData={sensorData.gForce} secondaryData="G" color="bg-[#98FB98]" />
-				</View>
+				<Text style={styles.headerText}>BLE Data:</Text>
+
+				{Object.entries(bleData).map(([key, value]) => (
+					<Text key={key} style={styles.dataText}>
+						{key}: {value}
+					</Text>
+				))}
+
+				<Text style={styles.headerText}>Raw BLE Data:</Text>
+				<Text style={styles.rawDataText}>
+					{JSON.stringify(bleData, null, 2)}
+				</Text>
 			</ScrollView>
-			<View className="absolute left-1/4 bottom-2">
+
+			<View style={styles.controlsContainer}>
 				<Controls onLayoutChange={() => { }} show3D={false} toggleShow3D={() => { }} />
 			</View>
 		</View>
 	);
 };
 
-export default CatScreen;
+export default BLEScreen;
+
+// This file contains a BLE screen for debugging purposes with dark mode support.
+// It uses mock data to simulate BLE connections and data updates.
+// The Controls component is included at the bottom of the screen.
+// TODO: Replace mock data with actual BLE functionality when ready.
+// TODO: Implement real connection logic and data fetching from BLE device.
+// TODO: Implement functionality for Controls component if needed.
