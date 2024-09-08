@@ -1,5 +1,4 @@
 // utils/BLEManager.ts
-
 import { Platform } from 'react-native';
 
 let BleManager: any;
@@ -45,7 +44,7 @@ class BLEManager {
 		if (!this.manager) {
 			console.log('BLE not supported, using mock data');
 			this.provideDummyData();
-			return Promise.resolve();
+			return;
 		}
 
 		console.log('Starting BLE scan');
@@ -79,19 +78,7 @@ class BLEManager {
 		});
 	}
 
-	stopScanning(): void {
-		if (this.manager) {
-			console.log('Stopping BLE scan');
-			this.manager.stopDeviceScan();
-			if (this.device) {
-				this.device.cancelConnection();
-			}
-		}
-		this.isConnected = false;
-		this.provideDummyData();
-	}
-
-	private async connectToDevice(device: any): Promise<void> {
+	async connectToDevice(device: any): Promise<void> {
 		try {
 			console.log('Connecting to device:', device.name);
 			this.device = await device.connect();
@@ -144,6 +131,7 @@ class BLEManager {
 			accel: (Math.random() * 20).toFixed(2),
 			gForce: (Math.random() * 5).toFixed(2),
 		};
+		console.log('Providing dummy data:', this.latestData);
 	}
 
 	getLatestData(): any {

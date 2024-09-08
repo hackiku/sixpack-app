@@ -1,7 +1,9 @@
 // app/(tabs)/ble.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, useColorScheme, FlatList } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { useColorScheme } from 'nativewind';
 import Controls from '@/components/ui/Controls';
+import BLEManager from '@/utils/BLEManager';
 
 // Mock BLE data
 const mockBLEData = {
@@ -20,7 +22,7 @@ const mockDevices = [
 ];
 
 const BLEScreen = () => {
-	const colorScheme = useColorScheme();
+	const { colorScheme } = useColorScheme();
 	const isDark = colorScheme === 'dark';
 	const [isConnected, setIsConnected] = useState(false);
 	const [bleData, setBLEData] = useState(mockBLEData);
@@ -28,127 +30,74 @@ const BLEScreen = () => {
 	const [isScanning, setIsScanning] = useState(false);
 	const [error, setError] = useState(null);
 
+	const bleManager = new BLEManager();
+
 	useEffect(() => {
 		const interval = setInterval(() => {
 			if (isConnected) {
-				setBLEData({
-					roll: Number((Math.random() * 360 - 180).toFixed(2)),
-					pitch: Number((Math.random() * 180 - 90).toFixed(2)),
-					yaw: Number((Math.random() * 360).toFixed(2)),
-					accel: Number((Math.random() * 20).toFixed(2)),
-					gForce: Number((Math.random() * 5).toFixed(2)),
-				});
+				setBLEData(bleManager.getLatestData());
 			}
 		}, 1000);
 
 		return () => clearInterval(interval);
 	}, [isConnected]);
 
-	const scanForDevices = () => {
+	const scanForDevices = async () => {
 		setIsScanning(true);
 		setError(null);
-		// Simulate scanning process
-		setTimeout(() => {
-			setAvailableDevices(mockDevices);
+		try {
+			await bleManager.startScanning();
+			setAvailableDevices(mockDevices); // Replace with actual devices when available
 			setIsScanning(false);
-		}, 2000);
+		} catch (err) {
+			setError(err.message);
+			setIsScanning(false);
+		}
 	};
 
-	const connectToDevice = (device) => {
-		// Simulate connection process
-		setTimeout(() => {
+	const connectToDevice = async (device) => {
+		try {
+			await bleManager.connectToDevice(device);
 			setIsConnected(true);
 			setError(null);
-		}, 1000);
+		} catch (err) {
+			setError(err.message);
+		}
 	};
 
-	const styles = StyleSheet.create({
-		container: {
-			flex: 1,
-			padding: 16,
-			backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
-		},
-		button: {
-			backgroundColor: '#4a90e2',
-			padding: 10,
-			borderRadius: 5,
-			marginBottom: 16,
-		},
-		buttonText: {
-			color: 'white',
-			textAlign: 'center',
-			fontSize: 16,
-		},
-		statusText: {
-			fontSize: 18,
-			marginBottom: 16,
-			color: isDark ? '#ffffff' : '#000000',
-		},
-		headerText: {
-			fontSize: 18,
-			fontWeight: 'bold',
-			marginTop: 16,
-			marginBottom: 8,
-			color: isDark ? '#ffffff' : '#000000',
-		},
-		dataText: {
-			fontSize: 16,
-			marginBottom: 4,
-			color: isDark ? '#e0e0e0' : '#333333',
-		},
-		rawDataText: {
-			fontSize: 14,
-			fontFamily: 'Courier',
-			color: isDark ? '#e0e0e0' : '#333333',
-		},
-		controlsContainer: {
-			position: 'absolute',
-			left: '25%',
-			bottom: 16,
-		},
-		errorText: {
-			color: 'red',
-			marginBottom: 16,
-		},
-		deviceItem: {
-			padding: 10,
-			borderBottomWidth: 1,
-			borderBottomColor: isDark ? '#333333' : '#cccccc',
-		},
-	});
-
 	return (
-		<View style={styles.container}>
+		<View className={`flex-1 p-4 ${isDark ? 'bg-gray-900' : 'bg-gray-100'}`}>
 			<ScrollView>
-
-				<Text style={styles.headerText}>BLE Data:</Text>
+				<Text className={`mt-16 text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>BLE Data:</Text>
 
 				{Object.entries(bleData).map(([key, value]) => (
-					<Text key={key} style={styles.dataText}>
+					<Text key={key} className={`mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
 						{key}: {value}
 					</Text>
 				))}
 
-				<Text style={styles.headerText}>Raw BLE Data:</Text>
-				<Text style={styles.rawDataText}>
+				<Text className={`text-lg font-bold mt-4 mb-2 ${isDark ? 'text-white' : 'text-black'}`}>Raw BLE Data:</Text>
+				<Text className={`font-mono ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
 					{JSON.stringify(bleData, null, 2)}
 				</Text>
 			</ScrollView>
 
-			<View style={styles.controlsContainer}>
+			<View className="absolute left-1/4 bottom-4">
 				<Controls onLayoutChange={() => { }} show3D={false} toggleShow3D={() => { }} />
 			</View>
 
-
-			<TouchableOpacity onPress={scanForDevices} style={styles.button}>
-				<Text style={styles.buttonText}>
+			<TouchableOpacity
+				onPress={scanForDevices}
+				className={`mt-4 p-3 rounded ${isScanning ? 'bg-gray-500' : 'bg-blue-500'}`}
+			>
+				<Text className="text-white text-center font-semibold">
 					{isScanning ? 'Scanning...' : 'Scan for Devices'}
 				</Text>
 			</TouchableOpacity>
 
-			{error && <Text style={styles.errorText}>{error}</Text>}
+			{error && <Text className="text-red-500 mt-2">{error}</Text>}
 
-			<Text style={styles.statusText}>
+			<Text className={`mt-2 text-lg ${isDark ? 'text-white' : 'text-black'}`}>
 				Status: {isConnected ? 'Connected' : 'Disconnected'}
 			</Text>
 
@@ -159,22 +108,15 @@ const BLEScreen = () => {
 					renderItem={({ item }) => (
 						<TouchableOpacity
 							onPress={() => connectToDevice(item)}
-							style={styles.deviceItem}
+							className={`p-3 border-b ${isDark ? 'border-gray-700' : 'border-gray-300'}`}
 						>
-							<Text style={styles.dataText}>{item.name}</Text>
+							<Text className={isDark ? 'text-white' : 'text-black'}>{item.name}</Text>
 						</TouchableOpacity>
 					)}
 				/>
 			)}
-
 		</View>
 	);
 };
 
 export default BLEScreen;
-
-// This file contains a BLE screen with simulated device scanning and connection functionality.
-// It displays debug data and supports dark mode.
-// TODO: Replace mock data and simulated functions with actual BLE logic when ready.
-// TODO: Implement proper error handling for real BLE operations.
-// TODO: Add disconnect functionality.
