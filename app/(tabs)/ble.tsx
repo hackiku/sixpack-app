@@ -1,6 +1,6 @@
 // app/(tabs)/ble.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, useColorScheme, FlatList } from 'react-native';
 import Controls from '@/components/ui/Controls';
 
 // Mock BLE data
@@ -12,10 +12,21 @@ const mockBLEData = {
 	gForce: 1.02,
 };
 
+// Mock devices
+const mockDevices = [
+	{ id: '1', name: 'SixPack Device 1' },
+	{ id: '2', name: 'SixPack Device 2' },
+	{ id: '3', name: 'Unknown Device' },
+];
+
 const BLEScreen = () => {
 	const colorScheme = useColorScheme();
+	const isDark = colorScheme === 'dark';
 	const [isConnected, setIsConnected] = useState(false);
 	const [bleData, setBLEData] = useState(mockBLEData);
+	const [availableDevices, setAvailableDevices] = useState([]);
+	const [isScanning, setIsScanning] = useState(false);
+	const [error, setError] = useState(null);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -33,11 +44,23 @@ const BLEScreen = () => {
 		return () => clearInterval(interval);
 	}, [isConnected]);
 
-	const toggleConnection = () => {
-		setIsConnected(!isConnected);
+	const scanForDevices = () => {
+		setIsScanning(true);
+		setError(null);
+		// Simulate scanning process
+		setTimeout(() => {
+			setAvailableDevices(mockDevices);
+			setIsScanning(false);
+		}, 2000);
 	};
 
-	const isDark = colorScheme === 'dark';
+	const connectToDevice = (device) => {
+		// Simulate connection process
+		setTimeout(() => {
+			setIsConnected(true);
+			setError(null);
+		}, 1000);
+	};
 
 	const styles = StyleSheet.create({
 		container: {
@@ -83,20 +106,20 @@ const BLEScreen = () => {
 			left: '25%',
 			bottom: 16,
 		},
+		errorText: {
+			color: 'red',
+			marginBottom: 16,
+		},
+		deviceItem: {
+			padding: 10,
+			borderBottomWidth: 1,
+			borderBottomColor: isDark ? '#333333' : '#cccccc',
+		},
 	});
 
 	return (
 		<View style={styles.container}>
 			<ScrollView>
-				<TouchableOpacity onPress={toggleConnection} style={styles.button}>
-					<Text style={styles.buttonText}>
-						{isConnected ? 'Disconnect' : 'Connect'}
-					</Text>
-				</TouchableOpacity>
-
-				<Text style={styles.statusText}>
-					Status: {isConnected ? 'Connected' : 'Disconnected'}
-				</Text>
 
 				<Text style={styles.headerText}>BLE Data:</Text>
 
@@ -115,15 +138,43 @@ const BLEScreen = () => {
 			<View style={styles.controlsContainer}>
 				<Controls onLayoutChange={() => { }} show3D={false} toggleShow3D={() => { }} />
 			</View>
+
+
+			<TouchableOpacity onPress={scanForDevices} style={styles.button}>
+				<Text style={styles.buttonText}>
+					{isScanning ? 'Scanning...' : 'Scan for Devices'}
+				</Text>
+			</TouchableOpacity>
+
+			{error && <Text style={styles.errorText}>{error}</Text>}
+
+			<Text style={styles.statusText}>
+				Status: {isConnected ? 'Connected' : 'Disconnected'}
+			</Text>
+
+			{availableDevices.length > 0 && (
+				<FlatList
+					data={availableDevices}
+					keyExtractor={(item) => item.id}
+					renderItem={({ item }) => (
+						<TouchableOpacity
+							onPress={() => connectToDevice(item)}
+							style={styles.deviceItem}
+						>
+							<Text style={styles.dataText}>{item.name}</Text>
+						</TouchableOpacity>
+					)}
+				/>
+			)}
+
 		</View>
 	);
 };
 
 export default BLEScreen;
 
-// This file contains a BLE screen for debugging purposes with dark mode support.
-// It uses mock data to simulate BLE connections and data updates.
-// The Controls component is included at the bottom of the screen.
-// TODO: Replace mock data with actual BLE functionality when ready.
-// TODO: Implement real connection logic and data fetching from BLE device.
-// TODO: Implement functionality for Controls component if needed.
+// This file contains a BLE screen with simulated device scanning and connection functionality.
+// It displays debug data and supports dark mode.
+// TODO: Replace mock data and simulated functions with actual BLE logic when ready.
+// TODO: Implement proper error handling for real BLE operations.
+// TODO: Add disconnect functionality.
